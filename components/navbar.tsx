@@ -7,13 +7,19 @@ import { Button } from '@/components/ui/button'
 import { LogOut, Settings, Moon, Sun, Monitor } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function Navbar() {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { theme, setTheme } = useTheme()
   const [showThemeMenu, setShowThemeMenu] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Prevent hydration mismatch by only rendering theme-dependent content after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleLogout = () => {
     dispatch(logoutUser())
@@ -37,11 +43,17 @@ export function Navbar() {
               size="sm"
               onClick={() => setShowThemeMenu(!showThemeMenu)}
               className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors gap-1 sm:gap-2 p-1.5 sm:px-3"
-              title={`Current theme: ${theme}`}
+              title={mounted ? `Current theme: ${theme}` : 'Theme'}
             >
-              {theme === 'light' && <Sun className="w-4 h-4" />}
-              {theme === 'dark' && <Moon className="w-4 h-4" />}
-              {theme === 'system' && <Monitor className="w-4 h-4" />}
+              {!mounted ? (
+                <Monitor className="w-4 h-4" />
+              ) : (
+                <>
+                  {theme === 'light' && <Sun className="w-4 h-4" />}
+                  {theme === 'dark' && <Moon className="w-4 h-4" />}
+                  {theme === 'system' && <Monitor className="w-4 h-4" />}
+                </>
+              )}
             </Button>
 
             {showThemeMenu && (

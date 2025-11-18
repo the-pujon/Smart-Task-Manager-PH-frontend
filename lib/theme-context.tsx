@@ -1,6 +1,7 @@
-'use client'
+"use client"
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext } from 'react'
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from 'next-themes'
 
 type Theme = 'light' | 'dark' | 'system'
 
@@ -13,56 +14,24 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system')
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    // Get saved theme from localStorage
-    const saved = localStorage.getItem('theme') as Theme | null
-    if (saved) {
-      setThemeState(saved)
-      applyTheme(saved)
-    } else {
-      applyTheme('system')
-    }
-  }, [])
-
-  const applyTheme = (themeToApply: Theme) => {
-    const resolved = themeToApply === 'system' 
-      ? window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      : themeToApply
-
-    setResolvedTheme(resolved)
-
-    if (resolved === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-
-    localStorage.setItem('theme', themeToApply)
-  }
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme)
-    applyTheme(newTheme)
-  }
-
-  if (!mounted) return children
-
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
+    <NextThemesProvider 
+      attribute="class" 
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       {children}
-    </ThemeContext.Provider>
+    </NextThemesProvider>
   )
 }
 
 export function useTheme() {
-  const context = useContext(ThemeContext)
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider')
+  const { theme, setTheme, resolvedTheme } = useNextTheme()
+  
+  return {
+    theme: theme as Theme,
+    setTheme: setTheme as (theme: Theme) => void,
+    resolvedTheme: (resolvedTheme || 'light') as 'light' | 'dark'
   }
-  return context
 }

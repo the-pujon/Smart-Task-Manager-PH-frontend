@@ -24,7 +24,7 @@ export default function DashboardPage() {
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    dispatch(initializeAuth())
+    // dispatch(initializeAuth())
     dispatch(initializeTeams())
     dispatch(initializeProjects())
     dispatch(initializeTasks())
@@ -32,15 +32,15 @@ export default function DashboardPage() {
     setInitialized(true)
   }, [dispatch])
 
-  useEffect(() => {
-    if (initialized && !currentUserId) {
-      router.push('/login')
-    }
-  }, [initialized, currentUserId, router])
+  // useEffect(() => {
+  //   if (initialized && !currentUserId) {
+  //     router.push('/login')
+  //   }
+  // }, [initialized, currentUserId, router])
 
-  if (!initialized || !currentUserId) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
+  // if (!initialized || !currentUserId) {
+  //   return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+  // }
 
   const limitedTeams = teams.slice(0, ITEMS_LIMIT)
   const limitedProjects = projects.slice(0, ITEMS_LIMIT)
