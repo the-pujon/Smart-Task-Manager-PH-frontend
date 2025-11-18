@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import Link from 'next/link'
+import { useUserLoginMutation } from '@/redux/api/authApi'
+import { toast } from 'sonner'
 
 const schema = z.object({
   email: z.string().email('Invalid email'),
@@ -21,27 +23,22 @@ type FormData = z.infer<typeof schema>
 
 export default function LoginPage() {
   const router = useRouter()
-  const dispatch = useAppDispatch()
-  const users = useAppSelector(state => state.auth.users)
   const [error, setError] = useState('')
+   const [login, { isLoading, error: serverError, isError, isSuccess }] = useUserLoginMutation();
 
-  useEffect(() => {
-    dispatch(initializeAuth())
-  }, [dispatch])
+ 
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
-  const onSubmit = (data: FormData) => {
-    const user = users.find(u => u.email === data.email && u.password === data.password)
-    if (!user) {
-      setError('Invalid email or password')
-      return
-    }
+  console.log("serverError", serverError)
 
-    dispatch(loginUser(user.id))
+  const onSubmit = async (data: FormData) => {
+    await login({ email: data.email, password: data.password }).unwrap();
+    toast.success('Login successful!');
     router.push('/dashboard')
+    
   }
 
   return (
@@ -59,6 +56,7 @@ export default function LoginPage() {
               {...register('email')}
               type="email"
               placeholder="you@example.com"
+              defaultValue={'pujondas1234@gmail.com'}
               className={errors.email ? 'border-destructive' : ''}
             />
             {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
@@ -70,6 +68,7 @@ export default function LoginPage() {
               {...register('password')}
               type="password"
               placeholder="••••••"
+              defaultValue={'12345678'}
               className={errors.password ? 'border-destructive' : ''}
             />
             {errors.password && <p className="text-sm text-destructive mt-1">{errors.password.message}</p>}
