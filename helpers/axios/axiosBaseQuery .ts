@@ -1,12 +1,12 @@
-import { IMeta } from '@/types'
+// import { IMeta } from '@/types'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
 import axios from 'axios'
 import type { AxiosRequestConfig, AxiosError } from 'axios'
+import type { RootState } from '@/redux/store'
 
 // Create an axios instance with interceptors
 export const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  withCredentials: true
 });
 
 // Flag to prevent multiple refresh token calls
@@ -61,13 +61,25 @@ axiosInstance.interceptors.response.use(
       // console.log("Attempting to refresh token...");
       const url = process.env.NEXT_PUBLIC_API_BASE_URL
 
-      // console.log(url)
+      // Get refresh token from localStorage
+      const persistedState = localStorage.getItem('persist:users');
+      let refreshToken = null;
       
-      // Call your refresh token endpoint - using regular axios to avoid interceptor loop
+      if (persistedState) {
+        const parsed = JSON.parse(persistedState);
+        const authUI = parsed.authUI ? JSON.parse(parsed.authUI) : null;
+        refreshToken = authUI?.refreshToken;
+      }
+
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+      
+      // Call your refresh token endpoint with refresh token in body
       const { data } = await axios({
         url: `${url}/auth/refresh-token`,
         method: 'POST',
-        withCredentials: true,
+        data: { refreshToken },
       });
       
       // console.log("Token refresh response:", data);
@@ -76,14 +88,38 @@ axiosInstance.interceptors.response.use(
       if (data.success === true || data.status === 'success') {
         // console.log("Token refresh successful, retrying original request");
         
+        // Update tokens in localStorage
+        const newAccessToken = data.data?.accessToken;
+        const newRefreshToken = data.data?.refreshToken;
+        
+        if (newAccessToken) {
+          const persistedState = localStorage.getItem('persist:users');
+          if (persistedState) {
+            const parsed = JSON.parse(persistedState);
+            const authUI = parsed.authUI ? JSON.parse(parsed.authUI) : {};
+            authUI.accessToken = newAccessToken;
+            if (newRefreshToken) {
+              authUI.refreshToken = newRefreshToken;
+            }
+            parsed.authUI = JSON.stringify(authUI);
+            localStorage.setItem('persist:users', JSON.stringify(parsed));
+          }
+        }
+        
         // Reset the refresh flag
         isRefreshing = false;
         
         // Process all queued requests
         processQueue();
         
-        // Make a clean copy of the original request to retry it
+        // Make a clean copy of the original request with new token
         const retryConfig = { ...originalRequest };
+        if (newAccessToken) {
+          retryConfig.headers = {
+            ...retryConfig.headers,
+            Authorization: `Bearer ${newAccessToken}`,
+          };
+        }
 
         
         // Return the retry request
@@ -100,10 +136,11 @@ axiosInstance.interceptors.response.use(
       processQueue(refreshError);
 
       
-      // Handle failed refresh - redirect to login
+      // Handle failed refresh - clear tokens and redirect to login
       if (typeof window !== 'undefined') {
+        localStorage.removeItem('persist:users');
         // console.log("Redirecting to login page due to authentication failure");
-        window.location.href = '/auth/signin';
+        window.location.href = '/login';
       }
       
       return Promise.reject(refreshError);
@@ -121,7 +158,7 @@ export const axiosBaseQuery =
       data?: AxiosRequestConfig['data']
       params?: AxiosRequestConfig['params']
       headers?: AxiosRequestConfig['headers']
-      meta?: IMeta
+      meta?: any
       contentType?: string
     },
     unknown,
@@ -130,6 +167,22 @@ export const axiosBaseQuery =
   async ({ url, method, data, params, contentType }) => {
     try {
       const headers: AxiosRequestConfig['headers'] = {};
+
+      // Get access token from localStorage
+      const persistedState = localStorage.getItem('persist:users');
+      if (persistedState) {
+        try {
+          const parsed = JSON.parse(persistedState);
+          const authUI = parsed.authUI ? JSON.parse(parsed.authUI) : null;
+          const accessToken = authUI?.accessToken;
+          
+          if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+          }
+        } catch (err) {
+          console.error('Error parsing persisted state:', err);
+        }
+      }
 
       if (data instanceof FormData) {
         headers['Content-Type'] = 'multipart/form-data'; 
@@ -144,8 +197,7 @@ export const axiosBaseQuery =
         data,
         params,
         headers,
-        baseURL: baseUrl, // Set baseURL for refresh logic
-        withCredentials: true, // Ensure cookies are sent with every request
+        baseURL: baseUrl,
       });
 
       return { data: result.data };

@@ -1,6 +1,7 @@
 import { baseApi } from "@/redux/api/baseApi";
 import { verify } from "crypto";
 import { refresh } from "next/cache";
+import { signInSuccess } from "../slice/authSlice";
 
 const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -19,6 +20,21 @@ const authApi = baseApi.injectEndpoints({
         data: loginData,
       }),
       invalidatesTags: ["user"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          // Automatically update the auth slice when login succeeds
+          dispatch(
+            signInSuccess({
+              currentUser: data.data.user,
+              accessToken: data.data.accessToken,
+              refreshToken: data.data.refreshToken,
+            })
+          );
+        } catch (error) {
+          // Handle error if needed
+        }
+      },
     }),
 
     userLogout: build.mutation({
@@ -27,6 +43,18 @@ const authApi = baseApi.injectEndpoints({
         method: "POST",
       }),
       invalidatesTags: ["user"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Clear auth state and localStorage on logout
+          const { signOut_user } = await import('@/redux/slice/authSlice');
+          dispatch(signOut_user());
+        } catch (error) {
+          // Still clear on error
+          const { signOut_user } = await import('@/redux/slice/authSlice');
+          dispatch(signOut_user());
+        }
+      },
     }),
 
     getUsers: build.query({

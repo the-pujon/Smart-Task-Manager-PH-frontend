@@ -13,27 +13,27 @@ import { Button } from '@/components/ui/button'
 import { Zap } from 'lucide-react'
 
 export default function ProjectsPage() {
-  const router = useRouter()
-  const dispatch = useAppDispatch()
-  const currentUserId = useAppSelector(state => state.auth.currentUserId)
+  // const router = useRouter()
+  // const dispatch = useAppDispatch()
+  // const currentUserId = useAppSelector(state => state.auth.currentUserId)
   const { autoReassignEnabled, setAutoReassignEnabled } = useAutoReassign()
-  const [initialized, setInitialized] = useState(false)
+  // const [initialized, setInitialized] = useState(false)
 
-  useEffect(() => {
-    dispatch(initializeAuth())
-    dispatch(initializeProjects())
-    setInitialized(true)
-  }, [dispatch])
+  // useEffect(() => {
+  //   dispatch(initializeAuth())
+  //   dispatch(initializeProjects())
+  //   setInitialized(true)
+  // }, [dispatch])
 
-  useEffect(() => {
-    if (initialized && !currentUserId) {
-      router.push('/login')
-    }
-  }, [initialized, currentUserId, router])
+  // useEffect(() => {
+  //   if (initialized && !currentUserId) {
+  //     router.push('/login')
+  //   }
+  // }, [initialized, currentUserId, router])
 
-  if (!initialized || !currentUserId) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
+  // if (!initialized || !currentUserId) {
+  //   return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+  // }
 
   return (
     <div className="min-h-screen bg-background">

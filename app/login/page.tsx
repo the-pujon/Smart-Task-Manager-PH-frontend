@@ -37,8 +37,7 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     await login({ email: data.email, password: data.password }).unwrap();
     toast.success('Login successful!');
-    router.push('/dashboard')
-    
+    router.push('/dashboard/projects')
   }
 
   return (

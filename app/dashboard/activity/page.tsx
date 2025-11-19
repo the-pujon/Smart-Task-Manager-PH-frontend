@@ -9,27 +9,6 @@ import { Sidebar } from '@/components/sidebar'
 import { ActivityPanel } from '@/components/activity-panel'
 
 export default function ActivityPage() {
-  const router = useRouter()
-  const dispatch = useAppDispatch()
-  const currentUserId = useAppSelector(state => state.auth.currentUserId)
-  const [initialized, setInitialized] = useState(false)
-
-  useEffect(() => {
-    dispatch(initializeAuth())
-    dispatch(initializeActivity())
-    setInitialized(true)
-  }, [dispatch])
-
-  useEffect(() => {
-    if (initialized && !currentUserId) {
-      router.push('/login')
-    }
-  }, [initialized, currentUserId, router])
-
-  if (!initialized || !currentUserId) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
