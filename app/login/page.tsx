@@ -13,6 +13,7 @@ import { useUserLoginMutation } from '@/redux/api/authApi'
 import { toast } from 'sonner'
 import { useRedirectIfAuthenticated } from '@/hooks/useAuth'
 import { Spinner } from '@/components/ui/spinner'
+import { CheckCircle2, ArrowLeft } from 'lucide-react'
 
 const schema = z.object({
   email: z.string().email('Invalid email'),
@@ -56,11 +57,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 p-4">
+      <Link href="/" className="mb-8 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm">Back to home</span>
+      </Link>
+      
       <Card className="w-full max-w-md p-8">
         <div className="mb-6">
+          <Link href="/" className="flex items-center gap-2 mb-6">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+              <CheckCircle2 className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <span className="text-2xl font-bold">Smart Task Manager</span>
+          </Link>
           <h1 className="text-3xl font-bold text-balance">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">Sign in to Smart Task Manager</p>
+          <p className="text-muted-foreground mt-2">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

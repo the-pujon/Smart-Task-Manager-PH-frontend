@@ -12,26 +12,8 @@ import { useTheme } from '@/lib/theme-context'
 import { Moon, Sun, Monitor } from 'lucide-react'
 
 export default function SettingsPage() {
-  const router = useRouter()
-  const dispatch = useAppDispatch()
-  const currentUserId = useAppSelector(state => state.auth.currentUserId)
   const { theme, setTheme } = useTheme()
-  const [initialized, setInitialized] = useState(false)
 
-  useEffect(() => {
-    dispatch(initializeAuth())
-    setInitialized(true)
-  }, [dispatch])
-
-  useEffect(() => {
-    if (initialized && !currentUserId) {
-      router.push('/login')
-    }
-  }, [initialized, currentUserId, router])
-
-  if (!initialized || !currentUserId) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
 
   return (
     <div className="min-h-screen bg-background">
