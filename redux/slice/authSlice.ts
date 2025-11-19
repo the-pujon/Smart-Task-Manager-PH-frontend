@@ -38,8 +38,10 @@ const authSlice = createSlice({
             state.currentUser=null
             state.accessToken=null
             state.refreshToken=null
-            localStorage.removeItem("persist:users")
-            
+            // Clear persisted data
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem("persist:users")
+            }
         }
     }
 })

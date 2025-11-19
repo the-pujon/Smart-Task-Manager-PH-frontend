@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { loginUser, initializeAuth } from '@/lib/store'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -13,6 +11,8 @@ import { Card } from '@/components/ui/card'
 import Link from 'next/link'
 import { useUserLoginMutation } from '@/redux/api/authApi'
 import { toast } from 'sonner'
+import { useRedirectIfAuthenticated } from '@/hooks/useAuth'
+import { Spinner } from '@/components/ui/spinner'
 
 const schema = z.object({
   email: z.string().email('Invalid email'),
@@ -24,20 +24,35 @@ type FormData = z.infer<typeof schema>
 export default function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState('')
-   const [login, { isLoading, error: serverError, isError, isSuccess }] = useUserLoginMutation();
-
- 
+  const [login, { isLoading }] = useUserLoginMutation()
+  
+  // Redirect if already authenticated
+  const { isAuthenticated } = useRedirectIfAuthenticated('/dashboard')
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
-  console.log("serverError", serverError)
-
   const onSubmit = async (data: FormData) => {
-    await login({ email: data.email, password: data.password }).unwrap();
-    toast.success('Login successful!');
-    router.push('/dashboard/projects')
+    try {
+      setError('')
+      await login({ email: data.email, password: data.password }).unwrap()
+      toast.success('Login successful!')
+      router.push('/dashboard')
+    } catch (err: any) {
+      const errorMessage = err?.data?.message || 'Invalid email or password. Please try again.'
+      setError(errorMessage)
+      toast.error(errorMessage)
+    }
+  }
+  
+  // Show loading while checking auth status
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
+        <Spinner className="w-8 h-8" />
+      </div>
+    )
   }
 
   return (
@@ -55,7 +70,6 @@ export default function LoginPage() {
               {...register('email')}
               type="email"
               placeholder="you@example.com"
-              defaultValue={'pujondas1234@gmail.com'}
               className={errors.email ? 'border-destructive' : ''}
             />
             {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
@@ -67,7 +81,6 @@ export default function LoginPage() {
               {...register('password')}
               type="password"
               placeholder="••••••"
-              defaultValue={'12345678'}
               className={errors.password ? 'border-destructive' : ''}
             />
             {errors.password && <p className="text-sm text-destructive mt-1">{errors.password.message}</p>}
@@ -75,7 +88,16 @@ export default function LoginPage() {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <Button type="submit" className="w-full">Sign In</Button>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <Spinner className="w-4 h-4" />
+                Signing in...
+              </span>
+            ) : (
+              'Sign In'
+            )}
+          </Button>
         </form>
 
         <p className="text-sm text-muted-foreground text-center mt-4">

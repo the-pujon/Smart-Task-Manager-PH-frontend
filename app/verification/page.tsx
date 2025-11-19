@@ -17,6 +17,7 @@ import {
   useResendVerificationEmailMutation,
   useVerifyEmailMutation,
 } from "@/redux/api/authApi";
+import { toast } from 'sonner';
 
 const schema = z.object({
   otp: z.string().min(6, "OTP must be 6 digits").max(6, "OTP must be 6 digits"),
@@ -75,9 +76,12 @@ export default function VerificationPage() {
 
     try {
       await verifyEmail({ code: data.otp, email: email }).unwrap();
-      router.push("/dashboard");
+      toast.success('Email verified successfully!');
+      router.push("/login");
     } catch (err: any) {
-      setError(err?.data?.message || "Verification failed. Please try again.");
+      const errorMessage = err?.data?.message || "Verification failed. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -90,8 +94,11 @@ export default function VerificationPage() {
 
     try {
       await resendVerificationEmail({ email }).unwrap();
+      toast.success('Verification code resent to your email!');
     } catch (err: any) {
-      setError(err?.data?.message || "Failed to resend OTP. Please try again.");
+      const errorMessage = err?.data?.message || "Failed to resend OTP. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       setCanResend(true);
       setCountdown(0);
     }

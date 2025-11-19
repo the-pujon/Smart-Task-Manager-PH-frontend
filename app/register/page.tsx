@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { registerUser, loginUser, initializeAuth } from "@/lib/store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { useUserSignUpMutation } from "@/redux/api/authApi";
+import { toast } from 'sonner'
+import { useRedirectIfAuthenticated } from '@/hooks/useAuth'
+import { Spinner } from '@/components/ui/spinner'
 
 const schema = z
   .object({
@@ -29,12 +30,11 @@ type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  // const users = useAppSelector((state) => state.auth.users);
   const [error, setError] = useState("");
-  const [signup, { isLoading,error: serverError, isError, isSuccess }] = useUserSignUpMutation();
-
-  console.log("serverError", serverError)
+  const [signup, { isLoading }] = useUserSignUpMutation();
+  
+  // Redirect if already authenticated
+  const { isAuthenticated } = useRedirectIfAuthenticated('/dashboard')
 
   const {
     register,
@@ -54,13 +54,25 @@ export default function RegisterPage() {
       }
 
       await signup(signupData).unwrap();
+      toast.success('Registration successful! Please verify your email.')
       
       // Redirect to verification page with email parameter
       router.push(`/verification?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
-      setError(err?.data?.message || "Registration failed. Please try again.");
+      const errorMessage = err?.data?.message || "Registration failed. Please try again."
+      setError(errorMessage);
+      toast.error(errorMessage)
     }
   };
+  
+  // Show loading while checking auth status
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
+        <Spinner className="w-8 h-8" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 p-4">
@@ -77,7 +89,6 @@ export default function RegisterPage() {
               {...register("name")}
               type="text"
               placeholder="Your name"
-              defaultValue="Pujon Das"
               className={errors.name ? "border-destructive" : ""}
             />
             {errors.name && (
@@ -92,7 +103,6 @@ export default function RegisterPage() {
               {...register("email")}
               type="email"
               placeholder="you@example.com"
-              defaultValue="pujondas1234@gmail.com"
               className={errors.email ? "border-destructive" : ""}
             />
             {errors.email && (
@@ -108,7 +118,6 @@ export default function RegisterPage() {
               {...register("password")}
               type="password"
               placeholder="••••••"
-              defaultValue="12345678"
               className={errors.password ? "border-destructive" : ""}
             />
             {errors.password && (
@@ -126,7 +135,6 @@ export default function RegisterPage() {
               {...register("confirmPassword")}
               type="password"
               placeholder="••••••"
-              defaultValue="12345678"
               className={errors.confirmPassword ? "border-destructive" : ""}
             />
             {errors.confirmPassword && (
@@ -138,8 +146,15 @@ export default function RegisterPage() {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <Button type="submit" className="w-full">
-            Create Account
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <Spinner className="w-4 h-4" />
+                Creating Account...
+              </span>
+            ) : (
+              'Create Account'
+            )}
           </Button>
         </form>
 

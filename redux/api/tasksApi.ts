@@ -9,7 +9,7 @@ const tasksApi = baseApi.injectEndpoints({
         method: "POST",
         data: taskData,
       }),
-      invalidatesTags: ["team", "member", "project"],
+      invalidatesTags: ["team", "member", "project", "task"],
     }),
 
     getTasks: build.query({
@@ -25,7 +25,7 @@ const tasksApi = baseApi.injectEndpoints({
           method: "GET",
         };
       },
-      providesTags: ["team", "member", "project"],
+      providesTags: ["team", "member", "project", "task"],
     }),
 
     updateTask: build.mutation({
@@ -34,7 +34,7 @@ const tasksApi = baseApi.injectEndpoints({
         method: "PATCH",
         data: data,
       }),
-      invalidatesTags: ["team", "member", "project"],
+      invalidatesTags: ["team", "member", "project", "task"],
     }),
 
     deleteTask: build.mutation({
@@ -42,7 +42,7 @@ const tasksApi = baseApi.injectEndpoints({
         url: `/tasks/${taskId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["team", "member", "project"],
+      invalidatesTags: ["team", "member", "project", "task"],
     }),
 
 
@@ -52,7 +52,7 @@ const tasksApi = baseApi.injectEndpoints({
         method: "POST",
         data: teamId ,
       }),
-      invalidatesTags: ["team", "member", "project"],
+      invalidatesTags: ["team", "member", "project", "task"],
     }),
 
   }),

@@ -1,29 +1,36 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useAppDispatch } from '@/lib/hooks'
-import { logoutUser } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { LogOut, Settings, Moon, Sun, Monitor } from 'lucide-react'
 import { useTheme } from '@/lib/theme-context'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useUserLogoutMutation } from '@/redux/api/authApi'
+import { toast } from 'sonner'
 
 export function Navbar() {
   const router = useRouter()
-  const dispatch = useAppDispatch()
   const { theme, setTheme } = useTheme()
   const [showThemeMenu, setShowThemeMenu] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [logout, { isLoading }] = useUserLogoutMutation()
 
   // Prevent hydration mismatch by only rendering theme-dependent content after mount
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const handleLogout = () => {
-    dispatch(logoutUser())
-    router.push('/login')
+  const handleLogout = async () => {
+    try {
+      await logout({}).unwrap()
+      toast.success('Logged out successfully')
+      router.push('/login')
+    } catch (error) {
+      // Even if the API call fails, still clear local state
+      toast.success('Logged out successfully')
+      router.push('/login')
+    }
   }
 
   return (
@@ -118,10 +125,11 @@ export function Navbar() {
             variant="ghost"
             size="sm"
             onClick={handleLogout}
+            disabled={isLoading}
             className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors p-1.5 sm:px-3"
           >
             <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline ml-2">Logout</span>
+            <span className="hidden sm:inline ml-2">{isLoading ? 'Logging out...' : 'Logout'}</span>
           </Button>
         </div>
       </div>
