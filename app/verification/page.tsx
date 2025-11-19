@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +25,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function VerificationPage() {
+function VerificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
@@ -184,5 +184,24 @@ export default function VerificationPage() {
         </p>
       </Card>
     </div>
+  );
+}
+
+export default function VerificationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 p-4">
+        <Card className="w-full max-w-md p-8">
+          <div className="mb-6 text-center">
+            <h1 className="text-3xl font-bold text-balance">Verify Your Email</h1>
+            <p className="text-muted-foreground mt-2">
+              Loading...
+            </p>
+          </div>
+        </Card>
+      </div>
+    }>
+      <VerificationContent />
+    </Suspense>
   );
 }
