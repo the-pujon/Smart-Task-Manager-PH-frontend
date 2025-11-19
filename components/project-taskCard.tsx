@@ -35,7 +35,7 @@ const ProjectTaskCard = ({
           {task.status}
         </p>
       </div>
-      <div className="flex gap-1">
+      {/* <div className="flex gap-1">
         <Button
           size="sm"
           variant="ghost"
@@ -71,7 +71,7 @@ const ProjectTaskCard = ({
         >
           <Trash2 className="w-3 h-3" />
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };

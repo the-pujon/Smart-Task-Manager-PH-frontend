@@ -369,7 +369,7 @@ export function ProjectManager() {
                     size="sm"
                     variant={needsReassignment ? "default" : "outline"}
                     onClick={() => handleProjectReassign(project.assignedTeam?._id)}
-                    className={`gap-1 flex-1 sm:flex-none ${
+                    className={`gap-1 flex-1 sm:flex-none cursor-pointer ${
                       needsReassignment ? "animate-blink" : ""
                     }`}
                     title={
@@ -406,7 +406,7 @@ export function ProjectManager() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="gap-1 flex-1 sm:flex-none"
+                        className="gap-1 flex-1 sm:flex-none cursor-pointer"
                       >
                         <Plus className="w-3 h-3 flex-shrink-0" />{" "}
                         <span className="hidden sm:inline">Task</span>
@@ -519,7 +519,7 @@ export function ProjectManager() {
                       </form>
                     </DialogContent>
                   </Dialog>
-                  <Button
+                  {/* <Button
                     size="sm"
                     variant="ghost"
                     onClick={async () => {
@@ -536,7 +536,7 @@ export function ProjectManager() {
                   >
                     <Trash2 className="w-3 h-3 flex-shrink-0" />
                     <span className="hidden sm:inline">Delete</span>
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
 
@@ -545,16 +545,6 @@ export function ProjectManager() {
                   <p className="text-xs text-muted-foreground">No tasks yet</p>
                 ) : (
                   projectTasks.map((task: any) => {
-                    // const assignee = team?.members?.find(
-                    //   (m: any) => m._id === task.assignedMember?._id
-                    // );
-                    // const memberTasks = tasks.filter(
-                    //   (t: any) =>
-                    //     t.assignedMember?._id === task.assignedMember?._id
-                    // );
-                    // const isOverloaded =
-                    //   assignee && memberTasks.length > assignee.capacity;
-
                     return (
                       <ProjectTaskCard
                         key={task._id}
