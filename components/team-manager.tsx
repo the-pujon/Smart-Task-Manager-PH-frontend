@@ -124,35 +124,44 @@ export function TeamManager() {
   };
 
   return (
-    <div className="space-y-4">
-      <Dialog open={openTeam} onOpenChange={setOpenTeam}>
-        <DialogTrigger asChild>
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" /> Create Team
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Team</DialogTitle>
-          </DialogHeader>
-          <form
-            onSubmit={teamForm.handleSubmit(onCreateTeam)}
-            className="space-y-4"
-          >
-            <Input {...teamForm.register("name")} placeholder="Team name" />
-            <Button type="submit" className="w-full">
-              Create Team
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Team Management</h2>
+          <p className="text-sm text-muted-foreground mt-1">Manage your teams and members</p>
+        </div>
+        <Dialog open={openTeam} onOpenChange={setOpenTeam}>
+          <DialogTrigger asChild>
+            <Button className="gap-2 shadow-sm">
+              <Plus className="w-4 h-4" /> Create Team
             </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create New Team</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={teamForm.handleSubmit(onCreateTeam)}
+              className="space-y-4"
+            >
+              <Input {...teamForm.register("name")} placeholder="Enter team name" className="h-10" />
+              <Button type="submit" className="w-full h-10">
+                Create Team
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-      <div className="space-y-3">
+      <div className="grid gap-4">
         {teams1?.map((team: any) => (
-          <Card key={team._id} className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold">{team.name}</h3>
+          <Card key={team._id} className="p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b">
               <div>
+                <h3 className="text-lg font-bold">{team.name}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">{team.members.length} member{team.members.length !== 1 ? 's' : ''}</p>
+              </div>
+              <div className="flex items-center gap-2">
                 <Dialog
                   open={openMember && selectedTeamId === team._id}
                   onOpenChange={(open) => {
@@ -165,12 +174,12 @@ export function TeamManager() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="gap-1 hover:text-white cursor-pointer"
+                      className="gap-1.5 h-9 shadow-sm"
                     >
-                      <Plus className="w-3 h-3" /> Member
+                      <Plus className="w-3.5 h-3.5" /> Add Member
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle>
                         {editingMemberId ? "Edit" : "Add"} Team Member
@@ -180,22 +189,34 @@ export function TeamManager() {
                       onSubmit={memberForm.handleSubmit(onAddMember)}
                       className="space-y-4"
                     >
-                      <Input
-                        {...memberForm.register("name")}
-                        placeholder="Member name"
-                      />
-                      <Input
-                        {...memberForm.register("role")}
-                        placeholder="Role"
-                      />
-                      <Input
-                        {...memberForm.register("capacity", {
-                          valueAsNumber: true,
-                        })}
-                        type="number"
-                        placeholder="Capacity (0-10)"
-                      />
-                      <Button type="submit" className="w-full">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Name</label>
+                        <Input
+                          {...memberForm.register("name")}
+                          placeholder="Enter member name"
+                          className="h-10"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Role</label>
+                        <Input
+                          {...memberForm.register("role")}
+                          placeholder="e.g., Developer, Designer"
+                          className="h-10"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Capacity</label>
+                        <Input
+                          {...memberForm.register("capacity", {
+                            valueAsNumber: true,
+                          })}
+                          type="number"
+                          placeholder="0-10"
+                          className="h-10"
+                        />
+                      </div>
+                      <Button type="submit" className="w-full h-10">
                         {editingMemberId ? "Update" : "Add"} Member
                       </Button>
                     </form>
@@ -205,37 +226,37 @@ export function TeamManager() {
                   size="sm"
                   variant="ghost"
                   onClick={() => onDeleteTeam(team._id)}
-                  className="gap-1 text-destructive cursor-pointer"
+                  className="h-9 w-9 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {team.members.map((member: any) => (
                 <div
                   key={member._id}
-                  className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
+                  className="flex items-center justify-between p-3.5 bg-secondary/20 rounded-lg hover:bg-secondary/40 transition-all border border-transparent hover:border-secondary"
                 >
-                  <div className="flex-1 space-y-1">
-                    <p className="font-semibold text-sm">{member.name}</p>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium">Role:</span> {member.role}
+                  <div className="flex-1 space-y-1.5">
+                    <p className="font-semibold text-base">{member.name}</p>
+                    <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs">
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Role:</span> {member.role}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium">Capacity:</span> {member.capacity}
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Capacity:</span> {member.capacity}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium">Assigned:</span> {member.totalTasks}
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Assigned:</span> {member.totalTasks}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium">Completed:</span> {member.tasksCompleted}
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Completed:</span> {member.tasksCompleted}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 ml-2">
+                  <div className="flex items-center gap-1.5 ml-3">
                     <Button
                       size="sm"
                       variant="ghost"
@@ -249,17 +270,17 @@ export function TeamManager() {
                         });
                         setOpenMember(true);
                       }}
-                      className="h-8 w-8 p-0 hover:bg-primary/10"
+                      className="h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="w-4 h-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => onDeleteMember(member._id)}
-                      className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                      className="h-9 w-9 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
