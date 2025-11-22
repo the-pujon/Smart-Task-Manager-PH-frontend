@@ -519,7 +519,7 @@ export function ProjectManager() {
                       </form>
                     </DialogContent>
                   </Dialog>
-                  {/* <Button
+                  <Button
                     size="sm"
                     variant="ghost"
                     onClick={async () => {
@@ -536,7 +536,7 @@ export function ProjectManager() {
                   >
                     <Trash2 className="w-3 h-3 flex-shrink-0" />
                     <span className="hidden sm:inline">Delete</span>
-                  </Button> */}
+                  </Button>
                 </div>
               </div>
 

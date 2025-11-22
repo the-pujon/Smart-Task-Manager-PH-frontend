@@ -216,39 +216,52 @@ export function TeamManager() {
               {team.members.map((member: any) => (
                 <div
                   key={member._id}
-                  className="flex items-center justify-between p-2 bg-secondary/30 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
                 >
-                  <div className="flex-1">
-                    <p className="font-medium">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {member.role} • Capacity: {member.capacity}
-                    </p>
+                  <div className="flex-1 space-y-1">
+                    <p className="font-semibold text-sm">{member.name}</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <span className="font-medium">Role:</span> {member.role}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="font-medium">Capacity:</span> {member.capacity}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="font-medium">Assigned:</span> {member.totalTasks}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="font-medium">Completed:</span> {member.tasksCompleted}
+                      </span>
+                    </div>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setSelectedTeamId(team._id);
-                      setEditingMemberId(member._id);
-                      memberForm.reset({
-                        name: member.name,
-                        role: member.role,
-                        capacity: member.capacity,
-                      });
-                      setOpenMember(true);
-                    }}
-                    className="gap-1"
-                  >
-                    <Edit2 className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => onDeleteMember(member._id)}
-                    className="gap-1 text-destructive"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
+                  <div className="flex items-center gap-1 ml-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setSelectedTeamId(team._id);
+                        setEditingMemberId(member._id);
+                        memberForm.reset({
+                          name: member.name,
+                          role: member.role,
+                          capacity: member.capacity,
+                        });
+                        setOpenMember(true);
+                      }}
+                      className="h-8 w-8 p-0 hover:bg-primary/10"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onDeleteMember(member._id)}
+                      className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
